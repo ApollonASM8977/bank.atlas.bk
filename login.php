@@ -54,24 +54,40 @@ if (isset($_POST['phone']) && isset($_POST['password']))
     if (mysqli_num_rows($result) === 1)
     {
         $row = mysqli_fetch_assoc($result);
-        // Verify password (uses password_verify if hashed, plain compare for legacy)
-        if ($row['phone'] === $phone && $row['password'] === $pass)
+        // Verify password — supports bcrypt hashes (new) and plain-text (legacy migration)
+        $storedPass  = $row['password'];
+        $passwordOk  = false;
+
+        if (password_verify($pass, $storedPass)) {
+            // Modern bcrypt hash
+            $passwordOk = true;
+        } elseif ($storedPass === $pass) {
+            // Legacy plain-text — auto-upgrade to bcrypt on next login
+            $passwordOk = true;
+            $newHash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => 12]);
+            $upStmt  = mysqli_prepare($conn, "UPDATE atlasin SET password = ? WHERE id = ?");
+            mysqli_stmt_bind_param($upStmt, "si", $newHash, $row['id']);
+            mysqli_stmt_execute($upStmt);
+            mysqli_stmt_close($upStmt);
+        }
+
+        if ($passwordOk)
         {
             $_SESSION['phone'] = $row['phone'];
-            $_SESSION['name'] = $row['name'];
-            $_SESSION['id'] = $row['id'];
+            $_SESSION['name']  = $row['name'];
+            $_SESSION['id']    = $row['id'];
 
             // Reset the login attempts
             $_SESSION['login_attempts'][$phone] = 0;
 
-            // check if user is an admin
-            if ($row['phone'] === '0101010101' && $row['password'] === '1234')
+            // Redirect based on admin flag (prefer a dedicated `is_admin` column over hardcoded check)
+            if (!empty($row['is_admin']) && (int)$row['is_admin'] === 1)
             {
-                header("Location: AdminPage.php"); // redirect to admin page
+                header("Location: AdminPage.php");
             }
             else
             {
-                header("Location: atlasmoney.php"); // redirect to user page
+                header("Location: atlasmoney.php");
             }
             exit();
         }

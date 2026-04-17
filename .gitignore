@@ -1,0 +1,17 @@
+# Environment / config files with real credentials
+.env
+config.local.php
+
+# Database dumps with real user data (schema files like atlasmoney.sql are OK to commit)
+*_dump.sql
+*_backup.sql
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# PHP vendor
+vendor/
+composer.lock

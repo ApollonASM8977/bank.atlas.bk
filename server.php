@@ -12,9 +12,9 @@ $phone        = trim(htmlspecialchars($_POST['phone'],        ENT_QUOTES, 'UTF-8
 $Pass         = $_POST['password'];
 $confirm_Pass = $_POST['repeatPassword'];
 
-// Validate password length
-if (strlen($Pass) < 4) {
-    header("Location: register.php?error=" . urlencode("Password must be at least 4 characters"));
+// Validate password length (minimum 8 characters for security)
+if (strlen($Pass) < 8) {
+    header("Location: register.php?error=" . urlencode("Password must be at least 8 characters"));
     exit();
 }
 
@@ -37,11 +37,14 @@ if (mysqli_num_rows($result) > 0) {
     exit();
 }
 
+// Hash password before storage (bcrypt, cost 12)
+$hashedPass = password_hash($Pass, PASSWORD_BCRYPT, ['cost' => 12]);
+
 // Insert new user — prepared statement
 $stmt_insert = mysqli_prepare($con,
     "INSERT INTO atlasin (name, email, phone, password) VALUES (?, ?, ?, ?)"
 );
-mysqli_stmt_bind_param($stmt_insert, "ssss", $name, $email, $phone, $Pass);
+mysqli_stmt_bind_param($stmt_insert, "ssss", $name, $email, $phone, $hashedPass);
 mysqli_stmt_execute($stmt_insert);
 
 // Fetch inserted user for session

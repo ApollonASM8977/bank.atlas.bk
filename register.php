@@ -1,3 +1,4 @@
+<!-- © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved -->
 <!DOCTYPE html>
 <html lang="en">
   <link rel="stylesheet" type="text/css" href="NewAccount3.css" />
@@ -32,10 +33,10 @@
           <option value="+228">+228</option>
         </select>
         <input type="text" name="phone" placeholder="PhoneNumber" maxlength="10" required /><br />
-        <label for="psw"><b>PASSWORD</b></label>
-        <input type="password" name="password" placeholder="password" maxlength="4" required /><br />
+        <label for="psw"><b>PASSWORD</b> <small style="color:#888">(min. 8 characters)</small></label>
+        <input type="password" name="password" placeholder="At least 8 characters" minlength="8" maxlength="64" required /><br />
         <label for="psw"><b>REPEAT PASSWORD</b></label>
-        <input type="password" name="repeatPassword" placeholder="Repeat Password" maxlength="4" required /><br />
+        <input type="password" name="repeatPassword" placeholder="Repeat password" minlength="8" maxlength="64" required /><br />
         <label for="checkbox"
           >Stay logged in
           <input type="checkbox" checked="checked" name="remenber" style="margin-bottom: 15px" />

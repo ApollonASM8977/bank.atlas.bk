@@ -1,4 +1,5 @@
 <?php
+// © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved
 session_start();
 include "db_connect.php";
 
@@ -7,189 +8,180 @@ if (!isset($_SESSION['id'])) {
     exit();
 }
 
-$id = $_SESSION['id'];
-$name = "";
-$error = "";
-$admin_id=1;
-// retrieve user information
-$sql = "SELECT * FROM atlasin WHERE id='$id'";
-$result = mysqli_query($conn, $sql);
-if (mysqli_num_rows($result) === 1) {
-    $row = mysqli_fetch_assoc($result);
-    $name = $row['name'];
+$id       = (int) $_SESSION['id'];
+$name     = "";
+$error    = "";
+$admin_id = 1;
+
+// ── CSRF token ────────────────────────────────────────────────────────────────
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+$csrf_token = $_SESSION['csrf_token'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
-    $amount = mysqli_real_escape_string($conn, $_POST['amount']);
+// ── Retrieve user name (prepared) ─────────────────────────────────────────────
+$stmt = mysqli_prepare($conn, "SELECT name FROM atlasin WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $name);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
 
-    // check if recipient phone number exists
-    $sql = "SELECT * FROM atlasin WHERE phone='$phone'";
-    $result = mysqli_query($conn, $sql);
-    if (mysqli_num_rows($result) === 1) {
-        $row = mysqli_fetch_assoc($result);
-        $recipient_id = $row['id'];
+// ── Handle withdrawal ─────────────────────────────────────────────────────────
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-        // check if sender has enough balance
-        $sql = "SELECT balance FROM atlasin WHERE id='$id'";
-        $result = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_assoc($result);
-        $balance = $row['balance'];
-        if ($balance >= $amount) {
-            // update sender and recipient balances
-            // calculate the fees
-            $fees = $amount * 0.01;
-            
-            // update sender and recipient balances (after deducting the fees)
-            $sql = "UPDATE atlasin SET balance=balance-$amount WHERE id='$id'";
-            mysqli_query($conn, $sql);
-            
-            $sql = "UPDATE atlasin SET balance=balance+($amount-$fees) WHERE id='$recipient_id'";
-            mysqli_query($conn, $sql);
-            
-            // credit fees to admin account
-            $sql = "UPDATE atlasin SET balance=balance+$fees WHERE id='$admin_id'";
-            mysqli_query($conn, $sql);
-            
-            // add transaction record (including the fees)
-            $sql = "INSERT INTO transaction (sender, receiver, amount, fees) VALUES ('$id', '$recipient_id', '$amount', '$fees')";
-            if (mysqli_query($conn, $sql)) {
-                $success = "Transaction successful!";
-                header("Refresh: 3; url=atlasmoney.php");
-            } else {
-                $error = "Transaction failed due to technical issue. Please try again later.";
-            }
-        } else {
-            $error = "Insufficient balance";
-        }
+    // CSRF check
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $error = "Invalid request. Please try again.";
     } else {
-        $error = "Recipient phone number not found";
+        $agent_phone = trim($_POST['phone']  ?? '');
+        $amount      = (float) ($_POST['amount'] ?? 0);
+
+        if (empty($agent_phone)) {
+            $error = "Agent phone number is required.";
+        } elseif ($amount <= 0) {
+            $error = "Amount must be greater than 0.";
+        } elseif ($amount > 5_000_000) {
+            $error = "Amount exceeds maximum withdrawal limit (5,000,000 FCFA).";
+        } else {
+            // Verify agent exists (prepared)
+            $stmt = mysqli_prepare($conn, "SELECT id, role FROM atlasin WHERE phone = ?");
+            mysqli_stmt_bind_param($stmt, "s", $agent_phone);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_bind_result($stmt, $agent_id, $agent_role);
+            $found = mysqli_stmt_fetch($stmt);
+            mysqli_stmt_close($stmt);
+
+            if (!$found) {
+                $error = "Agent phone number not found.";
+            } else {
+                // Check user balance (prepared)
+                $stmt = mysqli_prepare($conn, "SELECT balance FROM atlasin WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $id);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $balance);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+
+                if ($balance < $amount) {
+                    $error = "Insufficient balance.";
+                } else {
+                    $fees               = round($amount * 0.005, 2); // 0.5% withdrawal fee
+                    $debit              = $amount;
+                    $transaction_number = bin2hex(random_bytes(8));
+
+                    mysqli_begin_transaction($conn);
+                    try {
+                        // Debit user
+                        $s1 = mysqli_prepare($conn, "UPDATE atlasin SET balance = balance - ? WHERE id = ? AND balance >= ?");
+                        mysqli_stmt_bind_param($s1, "dii", $debit, $id, $debit);
+                        mysqli_stmt_execute($s1);
+                        if (mysqli_stmt_affected_rows($s1) !== 1) throw new Exception("Debit failed.");
+                        mysqli_stmt_close($s1);
+
+                        // Credit fees to admin
+                        $s2 = mysqli_prepare($conn, "UPDATE atlasin SET balance = balance + ? WHERE id = ?");
+                        mysqli_stmt_bind_param($s2, "di", $fees, $admin_id);
+                        mysqli_stmt_execute($s2);
+                        mysqli_stmt_close($s2);
+
+                        // Log withdrawal in transaction table
+                        $s3 = mysqli_prepare($conn, "INSERT INTO transaction (sender, receiver, amount, fees, transaction_number) VALUES (?, ?, ?, ?, ?)");
+                        mysqli_stmt_bind_param($s3, "iidds", $id, $agent_id, $amount, $fees, $transaction_number);
+                        mysqli_stmt_execute($s3);
+                        mysqli_stmt_close($s3);
+
+                        mysqli_commit($conn);
+
+                        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                        $success = "Withdrawal of " . number_format($amount, 0, '.', ' ') . " FCFA successful! Ref: #" . htmlspecialchars($transaction_number);
+                        header("Refresh: 3; url=atlasmoney.php");
+                    } catch (Exception $e) {
+                        mysqli_rollback($conn);
+                        $error = "Withdrawal failed. Please try again.";
+                    }
+                }
+            }
+        }
     }
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdraw — Atlas Money</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f2f2f2; }
+        header { background: #1a237e; color: #fff; padding: 20px; text-align: center; margin-bottom: 30px; }
+        header h2 { font-size: 28px; text-transform: uppercase; letter-spacing: 2px; }
+        .card {
+            background: #fff; padding: 30px; width: 420px; margin: 0 auto;
+            border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; color: #333; }
+        input[type=text], input[type=number] {
+            width: 100%; padding: 12px; margin-top: 6px;
+            border: 2px solid #ddd; border-radius: 6px; font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: #1a237e; outline: none; }
+        .fees-note { color: #e53935; font-size: 12px; margin-top: 4px; }
+        input[type=submit] {
+            width: 100%; margin-top: 24px; padding: 14px;
+            background: #1a237e; color: #fff; border: none;
+            border-radius: 6px; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: background 0.2s;
+        }
+        input[type=submit]:hover { background: #283593; }
+        .btn-row { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-row a { flex: 1; }
+        .btn-secondary {
+            display: block; width: 100%; padding: 11px; text-align: center;
+            background: #546e7a; color: #fff; border: none; border-radius: 6px;
+            font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover { background: #607d8b; }
+        .error   { background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; margin-top: 16px; border-left: 4px solid #e53935; }
+        .success { background: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 6px; margin-top: 16px; border-left: 4px solid #43a047; }
+        .user-info { text-align: center; color: #fff; font-size: 14px; margin-top: 4px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>🏦 Withdraw</h2>
+        <p class="user-info">Logged in as: <?= htmlspecialchars($name) ?></p>
+    </header>
+    <div class="card">
+        <?php if (isset($success)): ?>
+            <div class="success"><?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
+        <?php if ($error): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
-    <head>
-        <title>Send Money</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f2f2f2;
-            }
-            header {
-			background-color: #333;
-			color: #fff;
-			padding: 20px;
-			text-align: center;
-			margin-bottom: 30px;
-		}
+        <form method="post" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
 
-            form {
-                background-color: #fff;
-                padding: 20px;
-                width: 400px;
-                margin: 0 auto;
-                border-radius: 5px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            }
+            <label for="phone">Agent Phone Number</label>
+            <input type="text" id="phone" name="phone" maxlength="15"
+                   placeholder="e.g. 0701234567" required
+                   value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
 
-            h2 
-            {
-                text-align: center;
-                margin: 0;
-                font-size: 36px;
-                font-weight: bold;
-                text-transform: uppercase;
-            }
+            <label for="amount">Amount (FCFA)</label>
+            <input type="number" id="amount" name="amount" min="1" step="1"
+                   placeholder="e.g. 10000" required>
+            <p class="fees-note">⚠ A 0.5% withdrawal fee applies.</p>
 
-            input[type=text],
-            input[type=number] {
-                width: 100%;
-                padding: 12px 20px;
-                margin: 8px 0;
-                box-sizing: border-box;
-                border: 2px solid #ccc;
-                border-radius: 4px;
-            }
-
-            input[type=submit] {
-                background-color: #4CAF50;
-                color: #fff;
-                padding: 12px 20px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                width: 100%;
-            }
-
-            input[type="submit"]:hover {
-			background-color: #0ce631;
-		}
-            
-            input[type="button"] {
-			background-color: #333;
-			color: #fff;
-			border: none;
-			padding: 10px 70px;
-			font-size: 18px;
-			font-weight: bold;
-			border-radius: 5px;
-			cursor: pointer;
-		}
-        input[type="button"]:hover {
-			background-color: #0ce631;
-		}
-
-            a {
-                text-decoration: none;
-                color: #0077b5;
-                font-size: 16px;
-            }
-            .fees{
-                color:red;
-            }
-
-            .error {
-                color: red;
-            }
-
-            .hide {
-                display: none;
-            }
-
-            .success {
-                text-align: center;
-                color: green;
-            }
-        </style>
-
-    </head>
-
-    <body>
-        <header>
-        <h2>WithDraw</h2>
-        <div id="message">
-            <?php if (isset($success)) { ?>
-                <p class="success"><?php echo $success; ?></p>
-            <?php } ?>
-        </div>
-        </header>
-        <form method="post">
-            <label for="phone"> <b> Agent Phone Number </b></label>
-            <input type="text" id="phone" name="phone" required>
-            <label for="amount"><b> Amount </b>
-            <input type="number" id="amount" name="amount" required>
-            <?php if (isset($error)) { ?>
-                <p class="error"><?php echo $error; ?></p>
-            <?php } ?>
-            <input type="submit" value="Send">
-            <br> <br>
-            <input type="button" value="Logout" onclick="window.location.href='index.php'">
-            <input type="button" value="Home" onclick="window.location.href='AdminPage.php'">
-
+            <input type="submit" value="Withdraw">
+            <div class="btn-row">
+                <a href="atlasmoney.php" class="btn-secondary">🏠 Home</a>
+                <a href="logout.php"     class="btn-secondary">🚪 Logout</a>
+            </div>
         </form>
-
-    </body>
-
+    </div>
+</body>
 </html>
