@@ -1,4 +1,5 @@
 <?php
+// © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved
 session_start();
 include "db_connect.php";
 

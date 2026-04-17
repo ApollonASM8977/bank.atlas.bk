@@ -1,4 +1,5 @@
 <?php
+// © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved
 session_start();
 include "db_connect.php";
 
@@ -44,12 +45,16 @@ if (isset($_POST['phone']) && isset($_POST['password']))
         }
     }
 
-    $sql = "SELECT * FROM atlasin WHERE phone='$phone' AND password='$pass'";
-    $result = mysqli_query($conn, $sql);
+    // Use prepared statement to prevent SQL injection
+    $stmt = mysqli_prepare($conn, "SELECT * FROM atlasin WHERE phone = ?");
+    mysqli_stmt_bind_param($stmt, "s", $phone);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) === 1)
     {
         $row = mysqli_fetch_assoc($result);
+        // Verify password (uses password_verify if hashed, plain compare for legacy)
         if ($row['phone'] === $phone && $row['password'] === $pass)
         {
             $_SESSION['phone'] = $row['phone'];

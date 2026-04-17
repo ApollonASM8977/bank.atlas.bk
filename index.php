@@ -1,4 +1,5 @@
-<DOCTYPE html>
+<?php // © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved ?>
+<!DOCTYPE html>
     <html>
         <head>
             <title> LOGIN </title>
@@ -12,7 +13,7 @@
                 <?php if (isset($_GET['error'])) 
                 {
                 ?>
-                    <p class="error"> <?php echo $_GET['error']; ?></p>
+                    <p class="error"> <?php echo htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8'); ?></p>
                 <?php 
                 } ?>
                 <form>
