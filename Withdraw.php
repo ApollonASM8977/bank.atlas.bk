@@ -1,5 +1,5 @@
-<?php
-// © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved
+﻿<?php
+// Â© 2026 Aboubacar Sidick Meite (ApollonASM8977) â€” All Rights Reserved
 session_start();
 include "db_connect.php";
 
@@ -13,13 +13,13 @@ $name     = "";
 $error    = "";
 $admin_id = 1;
 
-// ── CSRF token ────────────────────────────────────────────────────────────────
+// â”€â”€ CSRF token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrf_token = $_SESSION['csrf_token'];
 
-// ── Retrieve user name (prepared) ─────────────────────────────────────────────
+// â”€â”€ Retrieve user name (prepared) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $stmt = mysqli_prepare($conn, "SELECT name FROM atlasin WHERE id = ?");
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
@@ -27,7 +27,7 @@ mysqli_stmt_bind_result($stmt, $name);
 mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
 
-// ── Handle withdrawal ─────────────────────────────────────────────────────────
+// â”€â”€ Handle withdrawal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // CSRF check
@@ -111,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Withdraw — Atlas Money</title>
+    <title>Withdraw â€” Atlas Money</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, sans-serif; background: #f2f2f2; }
@@ -152,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <header>
-        <h2>🏦 Withdraw</h2>
+        <h2>ðŸ¦ Withdraw</h2>
         <p class="user-info">Logged in as: <?= htmlspecialchars($name) ?></p>
     </header>
     <div class="card">
@@ -174,14 +174,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <label for="amount">Amount (FCFA)</label>
             <input type="number" id="amount" name="amount" min="1" step="1"
                    placeholder="e.g. 10000" required>
-            <p class="fees-note">⚠ A 0.5% withdrawal fee applies.</p>
+            <p class="fees-note">âš  A 0.5% withdrawal fee applies.</p>
 
             <input type="submit" value="Withdraw">
             <div class="btn-row">
-                <a href="atlasmoney.php" class="btn-secondary">🏠 Home</a>
-                <a href="logout.php"     class="btn-secondary">🚪 Logout</a>
+                <a href="atlasmoney.php" class="btn-secondary">ðŸ  Home</a>
+                <a href="logout.php"     class="btn-secondary">ðŸšª Logout</a>
             </div>
         </form>
     </div>
 </body>
 </html>
+

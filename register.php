@@ -1,4 +1,4 @@
-<!-- © 2026 Aboubacar Sidick Meite (ApollonIUGB77) — All Rights Reserved -->
+﻿<!-- Â© 2026 Aboubacar Sidick Meite (ApollonASM8977) â€” All Rights Reserved -->
 <!DOCTYPE html>
 <html lang="en">
   <link rel="stylesheet" type="text/css" href="NewAccount3.css" />
@@ -56,3 +56,4 @@
     </form>
   </body>
 </html>
+
