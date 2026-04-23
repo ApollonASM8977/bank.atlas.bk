@@ -1,4 +1,4 @@
-﻿<?php // Â© 2026 Aboubacar Sidick Meite (ApollonASM8977) â€” All Rights Reserved ?>
+<?php // © 2026 Aboubacar Sidick Meite (ApollonASM8977) — All Rights Reserved ?>
 <!DOCTYPE html>
     <html>
         <head>

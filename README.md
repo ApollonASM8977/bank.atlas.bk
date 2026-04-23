@@ -1,10 +1,10 @@
-﻿# Atlas Money ðŸ¦
+# Atlas Money ðŸ¦
 
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=flat-square&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=flat-square&logo=mysql)
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=flat-square)
 
-> Atlas Money â€” a mobile money web application inspired by wave/orange money.  
+> Atlas Money — a mobile money web application inspired by wave/orange money.  
 > Users can create accounts, send money to other users, view transaction history, and manage their balance.  
 > Admin panel for fee management and user overview.
 
@@ -12,15 +12,15 @@
 
 ## Features
 
-- ðŸ” **Authentication** â€” Login with phone number + password, session management
-- ðŸ›¡ï¸ **Brute-force protection** â€” Account lockout after 3 failed attempts (1-hour suspension)
-- ðŸ“ **Registration** â€” New account creation with duplicate phone/email detection
-- ðŸ’¸ **Send Money** â€” Transfer funds to any registered phone number
-- ðŸ’° **Transaction Fees** â€” 1% fee per transaction, credited to admin account
-- ðŸ“Š **Transaction History** â€” Full history with sender/receiver details and transaction IDs
-- ðŸ”‘ **Forgot Password** â€” Password reset functionality
-- ðŸ› ï¸ **Admin Panel** â€” Fee management and user overview
-- ðŸ“ž **Assistance** â€” Contact/support page
+- ðŸ” **Authentication** — Login with phone number + password, session management
+- ðŸ›¡ï¸ **Brute-force protection** — Account lockout after 3 failed attempts (1-hour suspension)
+- ðŸ“ **Registration** — New account creation with duplicate phone/email detection
+- ðŸ’¸ **Send Money** — Transfer funds to any registered phone number
+- 💰 **Transaction Fees** — 1% fee per transaction, credited to admin account
+- ðŸ“Š **Transaction History** — Full history with sender/receiver details and transaction IDs
+- ðŸ”‘ **Forgot Password** — Password reset functionality
+- ðŸ› ï¸ **Admin Panel** — Fee management and user overview
+- ðŸ“ž **Assistance** — Contact/support page
 
 ---
 
@@ -32,9 +32,9 @@
 | XSS protection (htmlspecialchars) | âœ… All user-facing outputs |
 | Session-based authentication | âœ… |
 | Login rate limiting (3 attempts / 1 hour) | âœ… |
-| CSRF protection | âš ï¸ Not yet implemented |
-| Password hashing (bcrypt) | âš ï¸ Planned â€” currently plain text (dev/demo only) |
-| HTTPS enforcement | âš ï¸ Configure via server (Apache/Nginx) |
+| CSRF protection | ⚠ï¸ Not yet implemented |
+| Password hashing (bcrypt) | ⚠ï¸ Planned — currently plain text (dev/demo only) |
+| HTTPS enforcement | ⚠ï¸ Configure via server (Apache/Nginx) |
 
 > **Note:** This project was built for educational purposes. For production deployment, enable password hashing with `password_hash()` / `password_verify()` and enforce HTTPS.
 
@@ -44,23 +44,23 @@
 
 ```
 bank.atlas.bk/
-â”œâ”€â”€ index.php           # Login page
-â”œâ”€â”€ register.php        # Registration form
-â”œâ”€â”€ server.php          # Registration handler (prepared statements)
-â”œâ”€â”€ login.php           # Login handler (prepared statements)
-â”œâ”€â”€ logout.php          # Session destroy
-â”œâ”€â”€ atlasmoney.php      # Main dashboard (balance + recent transactions)
-â”œâ”€â”€ SendMoney.php       # Money transfer
-â”œâ”€â”€ transactionDetail.php # Full transaction history
-â”œâ”€â”€ forgetPassword.php  # Password reset
-â”œâ”€â”€ AdminPage.php       # Admin dashboard
-â”œâ”€â”€ AdminFees.php       # Fee management
-â”œâ”€â”€ Assistance.php      # Support page
-â”œâ”€â”€ db_connect.php      # Database connection
-â”œâ”€â”€ atlasmoney.sql      # Database schema + seed
-â”œâ”€â”€ atlas.css           # Main styles
-â”œâ”€â”€ atlas.js            # Client-side scripts
-â””â”€â”€ .github/workflows/  # CI pipeline
+├── index.php           # Login page
+├── register.php        # Registration form
+├── server.php          # Registration handler (prepared statements)
+├── login.php           # Login handler (prepared statements)
+├── logout.php          # Session destroy
+├── atlasmoney.php      # Main dashboard (balance + recent transactions)
+├── SendMoney.php       # Money transfer
+├── transactionDetail.php # Full transaction history
+├── forgetPassword.php  # Password reset
+├── AdminPage.php       # Admin dashboard
+├── AdminFees.php       # Fee management
+├── Assistance.php      # Support page
+├── db_connect.php      # Database connection
+├── atlasmoney.sql      # Database schema + seed
+├── atlas.css           # Main styles
+├── atlas.js            # Client-side scripts
+└── .github/workflows/  # CI pipeline
 ```
 
 ---
@@ -141,9 +141,9 @@ Password : 1234
 
 ## Author
 
-**Aboubacar Sidick Meite** â€” [@ApollonASM8977](https://github.com/ApollonASM8977)
+**Aboubacar Sidick Meite** — [@ApollonASM8977](https://github.com/ApollonASM8977)
 
 ---
 
-Â© 2026 Aboubacar Sidick Meite (ApollonASM8977) â€” All Rights Reserved
+© 2026 Aboubacar Sidick Meite (ApollonASM8977) — All Rights Reserved
 

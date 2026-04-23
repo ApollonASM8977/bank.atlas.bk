@@ -1,5 +1,5 @@
-﻿<?php
-// Â© 2026 Aboubacar Sidick Meite (ApollonASM8977) â€” All Rights Reserved
+<?php
+// © 2026 Aboubacar Sidick Meite (ApollonASM8977) — All Rights Reserved
 session_start();
 
 $con = mysqli_connect('localhost', 'root', '', 'atlasmoney');
@@ -24,7 +24,7 @@ if ($Pass !== $confirm_Pass) {
     exit();
 }
 
-// Check duplicate email or phone â€” prepared statement
+// Check duplicate email or phone — prepared statement
 $stmt = mysqli_prepare($con, "SELECT email, phone FROM atlasin WHERE email = ? OR phone = ?");
 mysqli_stmt_bind_param($stmt, "ss", $email, $phone);
 mysqli_stmt_execute($stmt);
@@ -40,7 +40,7 @@ if (mysqli_num_rows($result) > 0) {
 // Hash password before storage (bcrypt, cost 12)
 $hashedPass = password_hash($Pass, PASSWORD_BCRYPT, ['cost' => 12]);
 
-// Insert new user â€” prepared statement
+// Insert new user — prepared statement
 $stmt_insert = mysqli_prepare($con,
     "INSERT INTO atlasin (name, email, phone, password) VALUES (?, ?, ?, ?)"
 );

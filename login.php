@@ -1,5 +1,5 @@
-﻿<?php
-// Â© 2026 Aboubacar Sidick Meite (ApollonASM8977) â€” All Rights Reserved
+<?php
+// © 2026 Aboubacar Sidick Meite (ApollonASM8977) — All Rights Reserved
 session_start();
 include "db_connect.php";
 
@@ -54,7 +54,7 @@ if (isset($_POST['phone']) && isset($_POST['password']))
     if (mysqli_num_rows($result) === 1)
     {
         $row = mysqli_fetch_assoc($result);
-        // Verify password â€” supports bcrypt hashes (new) and plain-text (legacy migration)
+        // Verify password — supports bcrypt hashes (new) and plain-text (legacy migration)
         $storedPass  = $row['password'];
         $passwordOk  = false;
 
@@ -62,7 +62,7 @@ if (isset($_POST['phone']) && isset($_POST['password']))
             // Modern bcrypt hash
             $passwordOk = true;
         } elseif ($storedPass === $pass) {
-            // Legacy plain-text â€” auto-upgrade to bcrypt on next login
+            // Legacy plain-text — auto-upgrade to bcrypt on next login
             $passwordOk = true;
             $newHash = password_hash($pass, PASSWORD_BCRYPT, ['cost' => 12]);
             $upStmt  = mysqli_prepare($conn, "UPDATE atlasin SET password = ? WHERE id = ?");
