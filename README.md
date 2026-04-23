@@ -1,4 +1,4 @@
-# Atlas Money ðŸ¦
+# Atlas Money 🏦
 
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=flat-square&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=flat-square&logo=mysql)
@@ -12,15 +12,15 @@
 
 ## Features
 
-- ðŸ” **Authentication** — Login with phone number + password, session management
-- ðŸ›¡ï¸ **Brute-force protection** — Account lockout after 3 failed attempts (1-hour suspension)
-- ðŸ“ **Registration** — New account creation with duplicate phone/email detection
-- ðŸ’¸ **Send Money** — Transfer funds to any registered phone number
+- 🔐 **Authentication** — Login with phone number + password, session management
+- 🛡️ **Brute-force protection** — Account lockout after 3 failed attempts (1-hour suspension)
+- 📝 **Registration** — New account creation with duplicate phone/email detection
+- 💸 **Send Money** — Transfer funds to any registered phone number
 - 💰 **Transaction Fees** — 1% fee per transaction, credited to admin account
-- ðŸ“Š **Transaction History** — Full history with sender/receiver details and transaction IDs
-- ðŸ”‘ **Forgot Password** — Password reset functionality
-- ðŸ› ï¸ **Admin Panel** — Fee management and user overview
-- ðŸ“ž **Assistance** — Contact/support page
+- 📊 **Transaction History** — Full history with sender/receiver details and transaction IDs
+- 🔑 **Forgot Password** — Password reset functionality
+- 🛠️ **Admin Panel** — Fee management and user overview
+- 📞 **Assistance** — Contact/support page
 
 ---
 
@@ -28,13 +28,13 @@
 
 | Feature | Status |
 |---------|--------|
-| SQL Injection protection (prepared statements) | âœ… `login.php`, `server.php` |
-| XSS protection (htmlspecialchars) | âœ… All user-facing outputs |
-| Session-based authentication | âœ… |
-| Login rate limiting (3 attempts / 1 hour) | âœ… |
-| CSRF protection | ⚠ï¸ Not yet implemented |
-| Password hashing (bcrypt) | ⚠ï¸ Planned — currently plain text (dev/demo only) |
-| HTTPS enforcement | ⚠ï¸ Configure via server (Apache/Nginx) |
+| SQL Injection protection (prepared statements) | ✅ `login.php`, `server.php` |
+| XSS protection (htmlspecialchars) | ✅ All user-facing outputs |
+| Session-based authentication | ✅ |
+| Login rate limiting (3 attempts / 1 hour) | ✅ |
+| CSRF protection | ⚠️ Not yet implemented |
+| Password hashing (bcrypt) | ⚠️ Planned — currently plain text (dev/demo only) |
+| HTTPS enforcement | ⚠️ Configure via server (Apache/Nginx) |
 
 > **Note:** This project was built for educational purposes. For production deployment, enable password hashing with `password_hash()` / `password_verify()` and enforce HTTPS.
 

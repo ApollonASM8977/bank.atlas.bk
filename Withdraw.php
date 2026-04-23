@@ -152,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <header>
-        <h2>ðŸ¦ Withdraw</h2>
+        <h2>🏦 Withdraw</h2>
         <p class="user-info">Logged in as: <?= htmlspecialchars($name) ?></p>
     </header>
     <div class="card">
@@ -178,8 +178,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <input type="submit" value="Withdraw">
             <div class="btn-row">
-                <a href="atlasmoney.php" class="btn-secondary">ðŸ  Home</a>
-                <a href="logout.php"     class="btn-secondary">ðŸšª Logout</a>
+                <a href="atlasmoney.php" class="btn-secondary">🏠 Home</a>
+                <a href="logout.php"     class="btn-secondary">🚪 Logout</a>
             </div>
         </form>
     </div>
